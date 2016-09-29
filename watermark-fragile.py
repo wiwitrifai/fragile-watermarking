@@ -20,5 +20,5 @@ for i in range(image.size[0]):
 
 for key in d:
     print("Color: ", key, " Occurence: ", d[key])
-print("Total color: ", colorsum)
 
+print("Total color: ", colorsum)
