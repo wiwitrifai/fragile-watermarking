@@ -1,5 +1,21 @@
 import sys
+import math
 from PIL import Image
+
+def psnr(watermarkedcover, plaincover):
+    return 20 * math.log10(256/rms(watermarkedcover, plaincover))
+
+def rms(image_a,image_b):
+    px_a = image_a.load()
+    px_b = image_b.load()
+    for i in range(image_a.width):
+        sum = 0
+        for j in range(image_a.height):
+            p_a = px_a[i,j]
+            p_b = px_b[i,j]
+            sum +=  math.pow((p_a[0] - p_b[0]), 2)
+    return math.sqrt(sum / (image_a.width * image_a.height))
+    
 
 def extract_lsb(inputpath, outputpath):
     cover = Image.open(inputpath)
@@ -30,10 +46,17 @@ def insert_lsb(inputpath, watermarkpath, outputpath):
     output.save(outputpath)
     output.show()
 
+def print_psnr(watermarkedpath, plainpath):
+    watermarked = Image.open(watermarkedpath)
+    plain = Image.open(plainpath)
+
+    print("PSNR: " + str(psnr(watermarked, plain))) 
 
 def main():
     insert_lsb(str(sys.argv[1]), str(sys.argv[2]), str(sys.argv[3]))
     extract_lsb(str(sys.argv[3]), "extracted_lsb_"+str(sys.argv[3]))
+    print ("Analysis")
+    print_psnr(str(sys.argv[1]), str(sys.argv[3]))
 
 if __name__ == '__main__':
   main()
