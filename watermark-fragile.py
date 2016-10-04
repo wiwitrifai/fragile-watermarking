@@ -75,10 +75,10 @@ def insert_lsb(inputpath, watermarkpath, outputpath):
         for j in range(cover.height):
             p = list(px_cover[i, j])
             if l > 7:
+            	k += 1
             	px_watermark = '{0:08b}'.format(ord(cipher[k%len(cipher)]))
             	l = 0
             p[0] = (p[0] & 0b11111110) | int(px_watermark[l])
-            k += 1
             l += 1
             px_output[i, j] = tuple(p)
     output.save(outputpath)
