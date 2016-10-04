@@ -2,6 +2,31 @@ import sys
 import math
 from PIL import Image
 
+def encrypt(plain, key):
+    cipher = []
+    k = 0
+    for i in range(0, len(plain), 8):
+    	c = plain[i:i+8]
+    	binary = ''.join(c)
+    	cipher.append(chr((int(binary, 2)+ord(key[k%len(key)])) % 256))
+    	k += 1
+    	# c = ord(plain[i])+ord(key[i%len(key)])
+    	# cipher.append(chr(c%256))
+
+    return "".join(cipher)
+
+def readBitImage(image):
+    bit = []
+    px = image.load()
+    for i in range(image.width):
+        for j in range(image.height):
+            if (px[i, j] == 0):
+                bit.append('0')
+            else:
+            	bit.append('1')
+
+    return "".join(bit)
+
 def psnr(watermarkedcover, plaincover):
     return 20 * math.log10(256/rms(watermarkedcover, plaincover))
 
@@ -34,17 +59,32 @@ def insert_lsb(inputpath, watermarkpath, outputpath):
     cover = Image.open(inputpath)
     watermark = Image.open(watermarkpath).convert("1")
     output = Image.new(cover.mode, cover.size)
+
     px_cover = cover.load()
-    px_watermark = watermark.load()
+    # px_watermark = watermark.load()
     px_output = output.load()
 
+
+    key = input("Masukkan kunci: ")
+    bitImage = readBitImage(watermark)
+    cipher = encrypt(bitImage, key)
+    k = 0
+    l = 0
+    px_watermark = '{0:08b}'.format(ord(cipher[k]))
     for i in range(cover.width):
         for j in range(cover.height):
             p = list(px_cover[i, j])
-            p[0] = (p[0] & 0b11111110) | (px_watermark[i % watermark.width, j % watermark.height] & 1)
+            if l > 7:
+            	px_watermark = '{0:08b}'.format(ord(cipher[k%len(cipher)]))
+            	l = 0
+            p[0] = (p[0] & 0b11111110) | int(px_watermark[l])
+            k += 1
+            l += 1
             px_output[i, j] = tuple(p)
     output.save(outputpath)
     output.show()
+
+            # p[0] = (p[0] & 0b11111110) | (px_watermark[i % watermark.width, j % watermark.height] & 1)
 
 def print_psnr(watermarkedpath, plainpath):
     watermarked = Image.open(watermarkedpath)
@@ -59,4 +99,4 @@ def main():
     print_psnr(str(sys.argv[1]), str(sys.argv[3]))
 
 if __name__ == '__main__':
-  main()
+    main()
