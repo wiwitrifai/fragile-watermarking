@@ -28,18 +28,19 @@ def readBitImage(image):
     return "".join(bit)
 
 def psnr(watermarkedcover, plaincover):
-    return 20 * math.log10(256/rms(watermarkedcover, plaincover))
+    return 20 * math.log10(255/rms(watermarkedcover, plaincover))
 
 def rms(image_a,image_b):
     px_a = image_a.load()
     px_b = image_b.load()
+    sum=0;
     for i in range(image_a.width):
-        sum = 0
         for j in range(image_a.height):
             p_a = px_a[i,j]
             p_b = px_b[i,j]
-            sum +=  math.pow((p_a[0] - p_b[0]), 2)
-    return math.sqrt(sum / (image_a.width * image_a.height))
+            sum += math.pow((p_a[0] - p_b[0]), 2) + math.pow((p_a[1] - p_b[1]), 2) + math.pow((p_a[2] - p_b[2]), 2)
+
+    return math.sqrt(sum / (image_a.width * image_a.height) / 3)
     
 
 def extract_lsb(inputpath, outputpath):
@@ -53,7 +54,7 @@ def extract_lsb(inputpath, outputpath):
             p = px_cover[i, j]
             px_lsb[i, j] = (p[0] & 1)
     lsb.save(outputpath);
-    lsb.show();
+    #lsb.show();
 
 def insert_lsb(inputpath, watermarkpath, outputpath):
     cover = Image.open(inputpath)
@@ -82,7 +83,7 @@ def insert_lsb(inputpath, watermarkpath, outputpath):
             l += 1
             px_output[i, j] = tuple(p)
     output.save(outputpath)
-    output.show()
+    #output.show()
 
             # p[0] = (p[0] & 0b11111110) | (px_watermark[i % watermark.width, j % watermark.height] & 1)
 
@@ -95,7 +96,7 @@ def print_psnr(watermarkedpath, plainpath):
 def main():
     insert_lsb(str(sys.argv[1]), str(sys.argv[2]), str(sys.argv[3]))
     extract_lsb(str(sys.argv[3]), "extracted_lsb_"+str(sys.argv[3]))
-    print ("Analysis")
+    print ("Analyzing...")
     print_psnr(str(sys.argv[1]), str(sys.argv[3]))
 
 if __name__ == '__main__':
