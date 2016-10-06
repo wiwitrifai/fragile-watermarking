@@ -1,7 +1,17 @@
 import sys
 import math
+import itertools
+import random
 from PIL import Image
-
+    
+def shuffle_order(cover_image, key):
+    order = []
+    for i in range (cover_image.width * cover_image.height):
+        order.append(i)
+    random.seed(ord(key[len(key)-1]) % len(order))
+    shuffled = random.shuffle(order)
+    return order
+    
 def encrypt(plain, key):
     cipher = []
     k = 0
@@ -67,6 +77,8 @@ def insert_lsb(inputpath, watermarkpath, outputpath):
 
 
     key = input("Masukkan kunci: ")
+    order = shuffle_order(cover, key)
+
     bitImage = readBitImage(watermark)
     cipher = encrypt(bitImage, key)
     k = 0
