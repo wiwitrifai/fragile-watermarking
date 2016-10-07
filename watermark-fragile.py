@@ -77,8 +77,7 @@ def insert_lsb(inputpath, watermarkpath, outputpath):
 
 
     key = input("Masukkan kunci: ")
-    order = shuffle_order(cover, key)
-
+    # order = shuffle_order(cover, key)
     bitImage = readBitImage(watermark)
     cipher = encrypt(bitImage, key)
     k = 0
@@ -106,10 +105,13 @@ def print_psnr(watermarkedpath, plainpath):
     print("PSNR: " + str(psnr(watermarked, plain))) 
 
 def main():
-    insert_lsb(str(sys.argv[1]), str(sys.argv[2]), str(sys.argv[3]))
-    extract_lsb(str(sys.argv[3]), "extracted_lsb_"+str(sys.argv[3]))
-    print ("Analyzing...")
-    print_psnr(str(sys.argv[1]), str(sys.argv[3]))
+    cmd = input("masukkan pilihan (i)nsert / (e)xtract: ")
+    if cmd == 'i':
+        insert_lsb(str(sys.argv[1]), str(sys.argv[2]), str(sys.argv[3]))
+        print ("Analyzing...")
+        print_psnr(str(sys.argv[1]), str(sys.argv[3]))
+    else:
+        extract_lsb(str(sys.argv[1]), "extracted_lsb_"+str(sys.argv[3]))
 
 if __name__ == '__main__':
     main()
